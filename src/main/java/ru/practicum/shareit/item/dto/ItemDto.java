@@ -10,15 +10,15 @@ import javax.validation.constraints.Size;
 @Data
 @Builder
 public class ItemDto {
-    @Positive(message = "Id должно быть положительным числом")
+    @Positive
     private Long id;
     @Size(max = 255)
-    @NotBlank (message = "Поле <<Name>> не должно быть пустым")
+    @NotBlank
     private String name;
     @Size(max = 500)
-    @NotBlank (message = "Поле <Description> не должно быть пустым")
+    @NotBlank
     private String description;
-    @NotBlank (message = "Поле <isAvailable> не должно быть пустым")
+    @NotBlank
     private Boolean isAvailable;
     private Long requestId;
 }
