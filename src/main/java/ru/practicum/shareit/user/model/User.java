@@ -19,4 +19,5 @@ public class User {
     @Size(max = 255)
     @NotBlank
     private String name;
+
 }

@@ -2,7 +2,6 @@ package ru.practicum.shareit.request.model;
 
 import lombok.Builder;
 import lombok.Data;
-import ru.practicum.shareit.user.model.User;
 
 import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotNull;
@@ -16,8 +15,9 @@ public class ItemRequest {
     private Long id;
     private String description;
     @NotNull
-    private User requestor;
+    private String requester;
     @NotNull
     @FutureOrPresent
     private LocalDateTime created;
+
 }

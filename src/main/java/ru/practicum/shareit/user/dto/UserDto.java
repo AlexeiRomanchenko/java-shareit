@@ -21,4 +21,5 @@ public class UserDto {
     @Size(max = 255)
     @NotBlank
     private String name;
+
 }

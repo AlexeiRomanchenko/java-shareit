@@ -6,22 +6,20 @@ import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
-import javax.validation.constraints.Size;
 
+@Builder(toBuilder = true)
 @Data
-@Builder
 @AllArgsConstructor
 public class Item {
     @Positive
     private Long id;
-    @Size(max = 255)
     @NotBlank
     private String name;
-    @Size(max = 500)
-    @NotBlank
     private String description;
-    @NotBlank
-    private Boolean isAvailable;
+    private Boolean available;
+    @Positive
     private Long ownerId;
+    @Positive
     private Long requestId;
+
 }

@@ -1,10 +1,7 @@
-package ru.practicum.shareit.booking;
+package ru.practicum.shareit.booking.model;
 
 import lombok.Builder;
 import lombok.Data;
-import ru.practicum.shareit.booking.description.BookingStatus;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.model.User;
 
 import javax.validation.constraints.*;
 import java.time.LocalDateTime;
@@ -21,8 +18,9 @@ public class Booking {
     @FutureOrPresent
     private LocalDateTime end;
     @NotNull
-    private Item item;
+    private Long itemId;
     @NotNull
-    private User booker;
-    private BookingStatus stalus;
+    private Long bookerId;
+    private String status;
+
 }
