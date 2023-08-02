@@ -7,8 +7,10 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.interfaces.ItemStorage;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -24,11 +26,27 @@ public class ItemService {
 
     public ItemDto create(ItemDto itemDto, Long ownerId) {
         ItemDto newItemDto = null;
-        if (userService.getUserById(ownerId) != null) {
-            newItemDto = mapper.toItemDto(itemStorage.create(mapper.toItem(itemDto, ownerId)));
+        UserDto owner = userService.getUserById(ownerId);
+
+        if (owner != null) {
+            Item item = mapper.toItem(itemDto, ownerId);
+            newItemDto = mapper.toItemDto(itemStorage.create(item));
+            setItemIdToOwnerItems(ownerId, newItemDto.getId());
         }
         return newItemDto;
     }
+
+    public void setItemIdToOwnerItems(Long ownerId, Long itemId) {
+        List<Long> itemsId = itemStorage.getItemsByOwnerId(ownerId);
+
+        if (itemsId == null) {
+            itemsId = new ArrayList<>();
+        }
+
+        itemsId.add(itemId);
+        itemStorage.addItemsToOwnerId(ownerId, itemsId);
+    }
+
 
     public ItemDto update(ItemDto itemDto, Long ownerId, Long itemId) {
         if (itemDto.getName() == null) {
@@ -50,24 +68,30 @@ public class ItemService {
         if (!oldItem.getOwnerId().equals(ownerId)) {
             throw new NotFoundException("У пользователя нет такой вещи.");
         }
-        return mapper.toItemDto(itemStorage.update(mapper.toItem(itemDto, ownerId)));
+        Item item = mapper.toItem(itemDto, ownerId);
+
+        return mapper.toItemDto(itemStorage.update(item));
     }
 
     public ItemDto delete(Long itemId, Long ownerId) {
         Item item = itemStorage.getItemById(itemId);
+
         if (!item.getOwnerId().equals(ownerId)) {
             throw new NotFoundException("У пользователя нет такой вещи.");
         }
+
+        List<Long> items = itemStorage.getItemsByOwnerId(ownerId);
+        items.remove(itemId);
+        itemStorage.addItemsToOwnerId(ownerId, items);
+
         return mapper.toItemDto(itemStorage.delete(itemId));
     }
 
     public List<ItemDto> getItemsByOwner(Long ownerId) {
-        Collection<Item> items = itemStorage.getAll();
+        Collection<Long> itemsId = itemStorage.getItemsByOwnerId(ownerId);
 
-        List<ItemDto> itemDtoList = items
-                .stream()
-                .filter(item -> item.getOwnerId().equals(ownerId))
-                .map(mapper::toItemDto)
+        List<ItemDto> itemDtoList  = itemsId.stream()
+                .map(this::getItemById)
                 .collect(toList());
 
         return itemDtoList;
@@ -94,14 +118,19 @@ public class ItemService {
         return mapper.toItemDto(itemStorage.getItemById(itemId));
     }
 
-
     public void deleteItemsByOwner(Long ownerId) {
-        Collection<Item> items = itemStorage.getAll();
+        Collection<Long> itemsId = itemStorage.getItemsByOwnerId(ownerId);
 
-        items.stream()
-                .filter(item -> item.getOwnerId().equals(ownerId))
-                .map(Item::getId)
-                .forEach(itemStorage::delete);
+        if (itemsId != null) {
+            for (Long itemId : itemsId) {
+                itemStorage.delete(itemId);
+            }
+            clearListItemsByOwnerId (ownerId);
+        }
+    }
+
+    public void clearListItemsByOwnerId(Long ownerId) {
+        itemStorage.addItemsToOwnerId(ownerId, new ArrayList<>());
     }
 
 }

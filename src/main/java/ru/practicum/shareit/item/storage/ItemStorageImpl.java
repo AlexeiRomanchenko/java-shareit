@@ -10,12 +10,15 @@ import java.util.*;
 public class ItemStorageImpl implements ItemStorage {
 
     private final Map<Long, Item> items;
+    private final Map<Long, List<Long>> ownerItems;
+
 
     private Long currentId;
 
     public ItemStorageImpl() {
         currentId = 0L;
         items = new HashMap<>();
+        ownerItems = new HashMap<>();
     }
 
     @Override
@@ -23,6 +26,14 @@ public class ItemStorageImpl implements ItemStorage {
         item.setId(++currentId);
         items.put(item.getId(), item);
         return item;
+    }
+
+    public void addItemsToOwnerId(Long ownerId, List<Long> itemsId) {
+        ownerItems.put(ownerId, itemsId);
+    }
+
+    public List<Long> getItemsByOwnerId(Long ownerId) {
+        return ownerItems.get(ownerId);
     }
 
     @Override
