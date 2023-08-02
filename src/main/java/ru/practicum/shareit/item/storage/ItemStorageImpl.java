@@ -1,22 +1,19 @@
 package ru.practicum.shareit.item.storage;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.interfaces.ItemStorage;
 import ru.practicum.shareit.item.model.Item;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
 @Repository
-@Qualifier("ItemStorageImpl")
 public class ItemStorageImpl implements ItemStorage {
 
-    public Map<Long, Item> items;
+    private final Map<Long, Item> items;
+
+
     private Long currentId;
 
     public ItemStorageImpl() {
@@ -35,6 +32,11 @@ public class ItemStorageImpl implements ItemStorage {
     public Item update(Item item) {
         items.put(item.getId(), item);
         return item;
+    }
+
+    @Override
+    public Collection<Item> getAll() {
+        return items.values();
     }
 
     @Override

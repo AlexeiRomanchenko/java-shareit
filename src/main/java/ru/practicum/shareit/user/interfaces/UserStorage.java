@@ -17,6 +17,6 @@ public interface UserStorage {
 
     boolean isExistUserInDb(Long id);
 
-    Long getUserIdByEmail(String email);
+    Long getUserIdByEmail(User user);
 
 }

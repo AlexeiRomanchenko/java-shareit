@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -26,14 +25,12 @@ public class UserController {
     private UserService userService;
     private ItemService itemService;
 
-    @ResponseBody
     @PostMapping
     public UserDto create(@Valid @RequestBody UserDto userDto) {
         log.info("Получен запрос на добавление нового пользователя.");
         return userService.create(userDto);
     }
 
-    @ResponseBody
     @PatchMapping("/{userId}")
     public UserDto update(@RequestBody UserDto userDto, @PathVariable Long userId) {
         log.info("Получен запрос на обновление пользователя с ID = {}", userId);

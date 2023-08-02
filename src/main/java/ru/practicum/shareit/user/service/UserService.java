@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user.service;
 
-
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.AlreadyExistsException;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -12,11 +11,12 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserService {
     private final UserStorage userStorage;
     private final UserMapper mapper;
@@ -24,7 +24,7 @@ public class UserService {
     public UserDto create(UserDto userDto) {
         User user = mapper.toUser(userDto);
 
-        Long idFromDbByEmail = userStorage.getUserIdByEmail(user.getEmail());
+        Long idFromDbByEmail = userStorage.getUserIdByEmail(user);
         if (idFromDbByEmail != null) {
             throw new AlreadyExistsException("Пользователь с e-mail = " + user.getEmail() + " уже существует.");
         }
@@ -40,15 +40,15 @@ public class UserService {
             userDto.setEmail(userStorage.getUserById(id).getEmail());
         }
         User user = mapper.toUser(userDto);
-        if (userStorage.getUserById(user.getId()) == null) {
-            throw new NotFoundException("Пользователь с ID = " + user.getId() + " не найден.");
-        }
+        checkUserOnNull(user.getId());
+
         if (user.getId() == null) {
             throw new ValidationException("ID пользователя не может быть пустым.");
         }
-        final Long idFromDbByEmail = userStorage.getUserIdByEmail(user.getEmail());
+
+        final Long idFromDbByEmail = userStorage.getUserIdByEmail(user);
         if (idFromDbByEmail != null && !user.getId().equals(idFromDbByEmail)) {
-            throw new AlreadyExistsException("User with e-mail=" + user.getEmail() + " already exists.");
+            throw new AlreadyExistsException("Пользователь с e-mail = " + user.getEmail() + " уже существует.");
         }
         User updateUser = userStorage.update(user);
         return mapper.toUserDto(updateUser);
@@ -71,11 +71,15 @@ public class UserService {
     }
 
     public UserDto getUserById(Long id) {
-        User user = userStorage.getUserById(id);
-        if (user == null) {
-            throw new NotFoundException("Пользователь с ID = " + id + " не найден.");
-        }
+        checkUserOnNull(id);
         return mapper.toUserDto(userStorage.getUserById(id));
+    }
+
+    public void checkUserOnNull(Long id) {
+        Optional.ofNullable(userStorage.getUserById(id)).orElseThrow(
+                () -> {
+                    throw new NotFoundException("Пользователь с id " + id + " не найден");
+                });
     }
 
 }

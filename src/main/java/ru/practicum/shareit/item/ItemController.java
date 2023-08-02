@@ -1,6 +1,6 @@
 package ru.practicum.shareit.item;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
@@ -23,22 +22,20 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/items")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ItemController {
     private static final String OWNER_ID_HEADER = "X-Sharer-User-Id";
     private final ItemService itemService;
 
-    @ResponseBody
     @PostMapping
     public ItemDto create(@Valid @RequestBody ItemDto itemDto, @RequestHeader(OWNER_ID_HEADER) Long ownerId) {
         log.info("Получен запрос на добавление вещи по ее владельцу с ID = {}", ownerId);
         return itemService.create(itemDto, ownerId);
     }
 
-    @ResponseBody
     @PatchMapping("/{itemId}")
     public ItemDto update(@RequestBody ItemDto itemDto, @PathVariable Long itemId, @RequestHeader(OWNER_ID_HEADER) Long ownerId) {
-        log.info("Получен запрос на обновление вещи с ID = {}", itemId);
+        log.info("Получен запрос на обновление вещей с ID = {}", itemId);
         return itemService.update(itemDto, ownerId, itemId);
     }
 
@@ -50,19 +47,20 @@ public class ItemController {
 
     @GetMapping
     public List<ItemDto> getItemsByOwner(@RequestHeader(OWNER_ID_HEADER) Long ownerId) {
-        log.info("Получен запрос на получение всех веще владельца с ID = {}", ownerId);
+        log.info("Получен запрос на получение всех вещей владельца с ID = {}", ownerId);
         return itemService.getItemsByOwner(ownerId);
     }
 
     @GetMapping("/search")
     public List<ItemDto> getItemsBySearchQuery(@RequestParam String text) {
-        log.info("Получен запрос на поиск вещи со следующим текстом: {}", text);
+        log.info("Получен запрос на поиск вещей со следующим текстом: {}", text);
         return itemService.getItemsBySearchQuery(text);
     }
 
     @GetMapping("/{itemId}")
     public ItemDto getItemById(@PathVariable Long itemId) {
-        log.info("Получен запрос на получение вещи с ID = {}", itemId);
+        log.info("Получен запрос на получение вещей с ID = {}", itemId);
         return itemService.getItemById(itemId);
     }
+
 }

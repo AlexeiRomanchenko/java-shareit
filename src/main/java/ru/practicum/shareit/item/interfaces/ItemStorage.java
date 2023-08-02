@@ -2,9 +2,11 @@ package ru.practicum.shareit.item.interfaces;
 
 import ru.practicum.shareit.item.model.Item;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface ItemStorage {
+    public Collection<Item> getAll();
     Item create(Item item);
 
     Item update(Item item);
