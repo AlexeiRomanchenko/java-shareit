@@ -90,7 +90,7 @@ public class ItemService {
     public List<ItemDto> getItemsByOwner(Long ownerId) {
         Collection<Long> itemsId = itemStorage.getItemsByOwnerId(ownerId);
 
-        List<ItemDto> itemDtoList  = itemsId.stream()
+        List<ItemDto> itemDtoList = itemsId.stream()
                 .map(this::getItemById)
                 .collect(toList());
 
@@ -125,7 +125,7 @@ public class ItemService {
             for (Long itemId : itemsId) {
                 itemStorage.delete(itemId);
             }
-            clearListItemsByOwnerId (ownerId);
+            clearListItemsByOwnerId(ownerId);
         }
     }
 
