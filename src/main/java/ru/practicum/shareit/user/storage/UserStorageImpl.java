@@ -43,9 +43,22 @@ public class UserStorageImpl implements UserStorage {
         return users.remove(userId);
     }
 
+    public void deleteEmail(String email) {
+        emails.remove(email);
+    }
+
+    public void addEmail(String email) {
+        emails.add(email);
+    }
+
     @Override
     public List<User> getUsers() {
         return new ArrayList<>(users.values());
+    }
+
+    @Override
+    public List<String> getEmails() {
+        return new ArrayList<>(emails);
     }
 
     @Override
@@ -56,26 +69,6 @@ public class UserStorageImpl implements UserStorage {
     @Override
     public boolean isExistUserInDb(Long id) {
         return users.containsKey(id);
-    }
-
-    @Override
-    public Long getUserIdByEmail(User inUser) {
-        String inputEmail = inUser.getEmail();
-
-        if (inputEmail == null) {
-            return null;
-        }
-
-        if (emails.contains(inputEmail)) {
-            for (User user : users.values()) {
-                String email = user.getEmail();
-                if (email.equals(inputEmail)) {
-                    return user.getId();
-                }
-            }
-
-        }
-        return null;
     }
 
 }

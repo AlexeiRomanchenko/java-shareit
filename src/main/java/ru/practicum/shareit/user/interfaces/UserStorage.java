@@ -13,10 +13,14 @@ public interface UserStorage {
 
     List<User> getUsers();
 
+    List<String> getEmails();
+
+    void addEmail(String email);
+
+    void deleteEmail(String email);
+
     User getUserById(Long userId);
 
     boolean isExistUserInDb(Long id);
-
-    Long getUserIdByEmail(User user);
 
 }

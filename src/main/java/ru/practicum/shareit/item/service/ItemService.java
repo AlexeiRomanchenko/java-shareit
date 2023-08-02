@@ -9,6 +9,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.interfaces.ItemStorage;
 import ru.practicum.shareit.user.service.UserService;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -61,37 +62,46 @@ public class ItemService {
     }
 
     public List<ItemDto> getItemsByOwner(Long ownerId) {
-        return itemStorage
-                .getItemsByOwner(ownerId)
+        Collection<Item> items = itemStorage.getAll();
+
+        List<ItemDto> itemDtoList = items
                 .stream()
+                .filter(item -> item.getOwnerId().equals(ownerId))
                 .map(mapper::toItemDto)
                 .collect(toList());
+
+        return itemDtoList;
     }
 
     public List<ItemDto> getItemsBySearchQuery(String text) {
         if (text == null || text.isBlank()) {
             return Collections.emptyList();
         }
-        text = text.toLowerCase();
 
+        String finalText = text.toLowerCase();
 
-
-        //itemStorage.getAll()
-
-
-
-        return itemStorage.getItemsBySearchQuery(text)
+        return itemStorage.getAll()
                 .stream()
+                .filter(Item::getAvailable)
+                .filter(item -> item.getName().toLowerCase().contains(finalText) ||
+                        item.getDescription().toLowerCase().contains(finalText))
                 .map(mapper::toItemDto)
                 .collect(toList());
+
     }
 
     public ItemDto getItemById(Long itemId) {
         return mapper.toItemDto(itemStorage.getItemById(itemId));
     }
 
+
     public void deleteItemsByOwner(Long ownerId) {
-        itemStorage.deleteItemsByOwner(ownerId);
+        Collection<Item> items = itemStorage.getAll();
+
+        items.stream()
+                .filter(item -> item.getOwnerId().equals(ownerId))
+                .map(Item::getId)
+                .forEach(itemStorage::delete);
     }
 
 }

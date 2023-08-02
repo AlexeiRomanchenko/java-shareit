@@ -24,7 +24,7 @@ public class UserService {
     public UserDto create(UserDto userDto) {
         User user = mapper.toUser(userDto);
 
-        Long idFromDbByEmail = userStorage.getUserIdByEmail(user);
+        Long idFromDbByEmail = getUserIdByEmail(user);
         if (idFromDbByEmail != null) {
             throw new AlreadyExistsException("Пользователь с e-mail = " + user.getEmail() + " уже существует.");
         }
@@ -33,12 +33,9 @@ public class UserService {
 
     public UserDto update(UserDto userDto, Long id) {
         userDto.setId(id);
-        if (userDto.getName() == null) {
-            userDto.setName(userStorage.getUserById(id).getName());
-        }
-        if (userDto.getEmail() == null) {
-            userDto.setEmail(userStorage.getUserById(id).getEmail());
-        }
+
+        userDto = checkOnNullNameAndEmail(userDto, id);
+
         User user = mapper.toUser(userDto);
         checkUserOnNull(user.getId());
 
@@ -46,9 +43,16 @@ public class UserService {
             throw new ValidationException("ID пользователя не может быть пустым.");
         }
 
-        final Long idFromDbByEmail = userStorage.getUserIdByEmail(user);
+        final Long idFromDbByEmail = getUserIdByEmail(user);
         if (idFromDbByEmail != null && !user.getId().equals(idFromDbByEmail)) {
             throw new AlreadyExistsException("Пользователь с e-mail = " + user.getEmail() + " уже существует.");
+        }
+
+        List<String> emails = userStorage.getEmails();
+
+        if (!emails.contains(user.getEmail())) {
+            userStorage.deleteEmail(getUserById(id).getEmail());
+            userStorage.addEmail(user.getEmail());
         }
         User updateUser = userStorage.update(user);
         return mapper.toUserDto(updateUser);
@@ -80,6 +84,39 @@ public class UserService {
                 () -> {
                     throw new NotFoundException("Пользователь с id " + id + " не найден");
                 });
+    }
+
+    public Long getUserIdByEmail(User inUser) {
+        String inputEmail = inUser.getEmail();
+
+        if (inputEmail == null) {
+            return null;
+        }
+
+        List<String> emails = userStorage.getEmails();
+
+        if (emails.contains(inputEmail)) {
+            List<User> users = userStorage.getUsers();
+
+            for (User user : users) {
+                String email = user.getEmail();
+                if (email.equals(inputEmail)) {
+                    return user.getId();
+                }
+            }
+
+        }
+        return null;
+    }
+
+    public UserDto checkOnNullNameAndEmail(UserDto userDto, Long id) {
+        if (userDto.getName() == null) {
+            userDto.setName(userStorage.getUserById(id).getName());
+        }
+        if (userDto.getEmail() == null) {
+            userDto.setEmail(userStorage.getUserById(id).getEmail());
+        }
+        return userDto;
     }
 
 }
