@@ -19,16 +19,15 @@ import static java.util.stream.Collectors.toList;
 @RequiredArgsConstructor
 public class UserService {
     private final UserStorage userStorage;
-    private final UserMapper mapper;
 
     public UserDto create(UserDto userDto) {
-        User user = mapper.toUser(userDto);
+        User user = UserMapper.toUser(userDto);
 
         Long idFromDbByEmail = getUserIdByEmail(user);
         if (idFromDbByEmail != null) {
             throw new AlreadyExistsException("Пользователь с e-mail = " + user.getEmail() + " уже существует.");
         }
-        return mapper.toUserDto(userStorage.create(user));
+        return UserMapper.toUserDto(userStorage.create(user));
     }
 
     public UserDto update(UserDto userDto, Long id) {
@@ -36,7 +35,7 @@ public class UserService {
 
         userDto = checkOnNullNameAndEmail(userDto, id);
 
-        User user = mapper.toUser(userDto);
+        User user = UserMapper.toUser(userDto);
         checkUserOnNull(user.getId());
 
         if (user.getId() == null) {
@@ -55,7 +54,7 @@ public class UserService {
             userStorage.addEmail(user.getEmail());
         }
         User updateUser = userStorage.update(user);
-        return mapper.toUserDto(updateUser);
+        return UserMapper.toUserDto(updateUser);
     }
 
     public UserDto delete(Long userId) {
@@ -65,18 +64,18 @@ public class UserService {
         if (!userStorage.isExistUserInDb(userId)) {
             throw new NotFoundException("Пользователь с ID = " + userId + " не найден.");
         }
-        return mapper.toUserDto(userStorage.delete(userId));
+        return UserMapper.toUserDto(userStorage.delete(userId));
     }
 
     public List<UserDto> getUsers() {
         return userStorage.getUsers().stream()
-                .map(mapper::toUserDto)
+                .map(UserMapper::toUserDto)
                 .collect(toList());
     }
 
     public UserDto getUserById(Long id) {
         checkUserOnNull(id);
-        return mapper.toUserDto(userStorage.getUserById(id));
+        return UserMapper.toUserDto(userStorage.getUserById(id));
     }
 
     public void checkUserOnNull(Long id) {

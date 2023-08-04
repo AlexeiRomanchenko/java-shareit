@@ -8,12 +8,10 @@ import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.interfaces.ItemStorage;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.user.interfaces.UserStorage;
+import ru.practicum.shareit.user.mapper.UserMapper;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
@@ -21,16 +19,16 @@ import static java.util.stream.Collectors.toList;
 @RequiredArgsConstructor
 public class ItemService {
     private final ItemStorage itemStorage;
-    private final ItemMapper mapper;
-    private final UserService userService;
+    private final UserStorage userStorage;
 
     public ItemDto create(ItemDto itemDto, Long ownerId) {
         ItemDto newItemDto = null;
-        UserDto owner = userService.getUserById(ownerId);
+        checkUserOnNull(ownerId);
+        UserDto owner = UserMapper.toUserDto(userStorage.getUserById(ownerId));
 
         if (owner != null) {
-            Item item = mapper.toItem(itemDto, ownerId);
-            newItemDto = mapper.toItemDto(itemStorage.create(item));
+            Item item = ItemMapper.toItem(itemDto, ownerId);
+            newItemDto = ItemMapper.toItemDto(itemStorage.create(item));
             setItemIdToOwnerItems(ownerId, newItemDto.getId());
         }
         return newItemDto;
@@ -58,9 +56,8 @@ public class ItemService {
         if (itemDto.getAvailable() == null) {
             itemDto.setAvailable(itemStorage.getItemById(itemId).getAvailable());
         }
-        if (userService.getUserById(ownerId) == null) {
-            throw new NotFoundException("Пользователь с ID = " + ownerId + " не найден.");
-        }
+        checkUserOnNull(ownerId);
+
         if (itemDto.getId() == null) {
             itemDto.setId(itemId);
         }
@@ -68,9 +65,16 @@ public class ItemService {
         if (!oldItem.getOwnerId().equals(ownerId)) {
             throw new NotFoundException("У пользователя нет такой вещи.");
         }
-        Item item = mapper.toItem(itemDto, ownerId);
+        Item item = ItemMapper.toItem(itemDto, ownerId);
 
-        return mapper.toItemDto(itemStorage.update(item));
+        return ItemMapper.toItemDto(itemStorage.update(item));
+    }
+
+    public void checkUserOnNull(Long id) {
+        Optional.ofNullable(userStorage.getUserById(id)).orElseThrow(
+                () -> {
+                    throw new NotFoundException("Пользователь с id " + id + " не найден");
+                });
     }
 
     public ItemDto delete(Long itemId, Long ownerId) {
@@ -84,7 +88,7 @@ public class ItemService {
         items.remove(itemId);
         itemStorage.addItemsToOwnerId(ownerId, items);
 
-        return mapper.toItemDto(itemStorage.delete(itemId));
+        return ItemMapper.toItemDto(itemStorage.delete(itemId));
     }
 
     public List<ItemDto> getItemsByOwner(Long ownerId) {
@@ -109,13 +113,13 @@ public class ItemService {
                 .filter(Item::getAvailable)
                 .filter(item -> item.getName().toLowerCase().contains(finalText) ||
                         item.getDescription().toLowerCase().contains(finalText))
-                .map(mapper::toItemDto)
+                .map(ItemMapper::toItemDto)
                 .collect(toList());
 
     }
 
     public ItemDto getItemById(Long itemId) {
-        return mapper.toItemDto(itemStorage.getItemById(itemId));
+        return ItemMapper.toItemDto(itemStorage.getItemById(itemId));
     }
 
     public void deleteItemsByOwner(Long ownerId) {
