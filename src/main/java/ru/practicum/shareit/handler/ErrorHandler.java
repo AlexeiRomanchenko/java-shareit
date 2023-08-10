@@ -3,14 +3,14 @@ package ru.practicum.shareit.handler;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.shareit.exception.AlreadyExistsException;
-import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
+
+import ru.practicum.shareit.exception.*;
 
 import javax.validation.ConstraintViolationException;
 
@@ -32,6 +32,14 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleNotAvailableException(NotAvailableException e) {
+        log.info(LogError.INCORRECT_REQUEST.getMessage());
+        return new ErrorResponse(e.getMessage());
+    }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleIncorrectValidException(final ValidationException e) {
@@ -40,7 +48,28 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handlerAccessException(final OperationAccessException e) {
+        log.info(LogError.OBJECT_NOT_FOUND.getMessage());
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleBadRequestException(final BadRequestException e) {
+        log.info(LogError.INCORRECT_REQUEST.getMessage());
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleUnknownDataException(TimeDataException e) {
+        log.info(LogError.INCORRECT_REQUEST.getMessage());
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleAlreadyExistException(final AlreadyExistsException e) {
         log.info(LogError.OBJECT_ALREADY_EXIST.getMessage());
         return new ErrorResponse(e.getMessage());
