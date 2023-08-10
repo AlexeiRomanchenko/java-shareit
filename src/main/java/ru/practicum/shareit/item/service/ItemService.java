@@ -23,9 +23,10 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemRepository;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.user.storage.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -37,12 +38,12 @@ import java.util.stream.Collectors;
 public class ItemService {
     private final ItemRepository itemRepository;
     private final BookingRepository bookingRepository;
-    private final UserService userService;
+    private final UserRepository userRepository;
     private final CommentStorage commentStorage;
 
     @Transactional
     public ItemDto create(Long userId, ItemDto itemDto) {
-        userService.findUserById(userId);
+        findUserById(userId);
         Item item = ItemMapper.toItem(itemDto);
         item.setOwnerId(userId);
         return ItemMapper.toItemDto(itemRepository.save(item));
@@ -80,7 +81,7 @@ public class ItemService {
     public ItemDto save(ItemDto itemDto, Long itemId, Long userId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException(String.format("Вещь с ID = %d не найдена.", itemId)));
-        userService.findUserById(userId);
+        findUserById(userId);
         if (!item.getOwnerId().equals(userId)) {
             throw new OperationAccessException(String.format(
                     "Пользователь с ID = %d не является владельцем, обновление не доступно.", userId));
@@ -145,7 +146,7 @@ public class ItemService {
     public CommentDto addComment(Long itemId, Long userId, CommentDto commentDto) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException(String.format("Вещь с ID = %d не найдена.", itemId)));
-        User user = UserMapper.toUser(userService.findUserById(userId));
+        User user = UserMapper.toUser(findUserById(userId));
         List<Booking> bookings = bookingRepository
                 .findByItemIdAndBookerIdAndStatusIsAndEndIsBefore(
                         itemId, userId, BookingStatus.APPROVED, LocalDateTime.now());
@@ -160,6 +161,11 @@ public class ItemService {
             throw new NotAvailableException(String.format("" +
                     "Бронирование не найдено для пользователя с ID = %d и вещи с ID = %d.", userId, itemId));
         }
+    }
+
+    public UserDto findUserById(Long id) {
+        return UserMapper.toUserDto(userRepository.findById(id).orElseThrow(
+                () -> new NotFoundException("Пользователь с id " + id + " не найден")));
     }
 
 }

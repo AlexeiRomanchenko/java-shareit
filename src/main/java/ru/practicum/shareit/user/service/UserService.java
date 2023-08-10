@@ -24,7 +24,7 @@ public class UserService {
 
     @Transactional
     public UserDto save(UserDto userDto, Long userId) {
-        User user = UserMapper.toUser(findUserById(userId));
+        User user = UserMapper.toUser(checkFindUserById(userId));
         if (userDto.getName() != null) {
             user.setName(userDto.getName());
         }
@@ -47,7 +47,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserDto findUserById(Long id) {
+    public UserDto checkFindUserById(Long id) {
         return UserMapper.toUserDto(userRepository.findById(id).orElseThrow(
                 () -> new NotFoundException("Пользователь с id " + id + " не найден")));
     }

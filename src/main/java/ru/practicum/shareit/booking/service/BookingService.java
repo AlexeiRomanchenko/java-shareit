@@ -43,7 +43,7 @@ public class BookingService {
                     .format("Время начала = %s  и конца = %s бронирования - неверное",
                             bookingDtoShort.getStart(), bookingDtoShort.getEnd()));
         }
-        User booker = UserMapper.toUser(userService.findUserById(bookerId));
+        User booker = UserMapper.toUser(userService.checkFindUserById(bookerId));
         Item item = ItemMapper.toItem(itemService.findItemById(bookingDtoShort.getItemId(), bookerId));
         if (itemService.findOwnerId(item.getId()).equals(bookerId)) {
             throw new OperationAccessException("Владелец не может бронировать свою вещь.");
@@ -77,7 +77,7 @@ public class BookingService {
 
     @Transactional
     public List<OutputBookingDto> findAllBookingsByUser(String state, Long userId, Integer from, Integer size) {
-        userService.findUserById(userId);
+        userService.checkFindUserById(userId);
         Pageable page = PageRequest.of(from / size, size);
         LocalDateTime now = LocalDateTime.now();
         switch (state) {
@@ -106,7 +106,7 @@ public class BookingService {
 
     @Transactional
     public List<OutputBookingDto> findAllBookingsByOwner(String state, Long ownerId, Integer from, Integer size) {
-        userService.findUserById(ownerId);
+        userService.checkFindUserById(ownerId);
         Pageable page = PageRequest.of(from / size, size);
         LocalDateTime now = LocalDateTime.now();
         switch (state) {

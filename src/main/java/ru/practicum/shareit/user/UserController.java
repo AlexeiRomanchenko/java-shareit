@@ -50,7 +50,7 @@ public class UserController {
     @GetMapping("/{userId}")
     public UserDto findById(@PathVariable long userId) {
         log.info("Получен запрос на получение пользователя с ID = {}", userId);
-        return userService.findUserById(userId);
+        return userService.checkFindUserById(userId);
     }
 
 }
