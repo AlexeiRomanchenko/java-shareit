@@ -18,7 +18,7 @@ import ru.practicum.shareit.exception.OperationAccessException;
 import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.item.comment.mapper.CommentMapper;
 import ru.practicum.shareit.item.comment.model.Comment;
-import ru.practicum.shareit.item.comment.storage.CommentStorage;
+import ru.practicum.shareit.item.comment.storage.CommentRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
@@ -39,11 +39,11 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
-    private final CommentStorage commentStorage;
+    private final CommentRepository commentRepository;
 
     @Transactional
     public ItemDto create(Long userId, ItemDto itemDto) {
-        findUserById(userId);
+        checkFindUserById(userId);
         Item item = ItemMapper.toItem(itemDto);
         item.setOwnerId(userId);
         return ItemMapper.toItemDto(itemRepository.save(item));
@@ -58,7 +58,7 @@ public class ItemService {
         if (Objects.equals(item.getOwnerId(), userId)) {
             updateBookings(result);
         }
-        List<Comment> comments = commentStorage.findAllByItemId(result.getId());
+        List<Comment> comments = commentRepository.findAllByItemId(result.getId());
         result.setComments(CommentMapper.toDtoList(comments));
         return result;
     }
@@ -71,7 +71,7 @@ public class ItemService {
                 .collect(Collectors.toList());
         List<ItemDto> list = new ArrayList<>();
         item.stream().map(this::updateBookings).forEach(i -> {
-            CommentMapper.toDtoList(commentStorage.findAllByItemId(i.getId()));
+            CommentMapper.toDtoList(commentRepository.findAllByItemId(i.getId()));
             list.add(i);
         });
         return list;
@@ -81,7 +81,7 @@ public class ItemService {
     public ItemDto save(ItemDto itemDto, Long itemId, Long userId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException(String.format("Вещь с ID = %d не найдена.", itemId)));
-        findUserById(userId);
+        checkFindUserById(userId);
         if (!item.getOwnerId().equals(userId)) {
             throw new OperationAccessException(String.format(
                     "Пользователь с ID = %d не является владельцем, обновление не доступно.", userId));
@@ -146,7 +146,7 @@ public class ItemService {
     public CommentDto addComment(Long itemId, Long userId, CommentDto commentDto) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException(String.format("Вещь с ID = %d не найдена.", itemId)));
-        User user = UserMapper.toUser(findUserById(userId));
+        User user = UserMapper.toUser(checkFindUserById(userId));
         List<Booking> bookings = bookingRepository
                 .findByItemIdAndBookerIdAndStatusIsAndEndIsBefore(
                         itemId, userId, BookingStatus.APPROVED, LocalDateTime.now());
@@ -156,14 +156,14 @@ public class ItemService {
             comment.setItem(item);
             comment.setAuthor(user);
             comment.setCreated(LocalDateTime.now());
-            return CommentMapper.toDto(commentStorage.save(comment));
+            return CommentMapper.toDto(commentRepository.save(comment));
         } else {
             throw new NotAvailableException(String.format("" +
                     "Бронирование не найдено для пользователя с ID = %d и вещи с ID = %d.", userId, itemId));
         }
     }
 
-    public UserDto findUserById(Long id) {
+    public UserDto checkFindUserById(Long id) {
         return UserMapper.toUserDto(userRepository.findById(id).orElseThrow(
                 () -> new NotFoundException("Пользователь с id " + id + " не найден")));
     }
