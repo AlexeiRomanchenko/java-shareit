@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
+@Transactional
 @AllArgsConstructor
 public class BookingService {
     private final BookingRepository bookingRepository;
@@ -43,8 +44,6 @@ public class BookingService {
     private final ItemRepository itemRepository;
     private final CommentRepository commentRepository;
 
-
-    @Transactional
     public OutputBookingDto create(InputBookingDto bookingDtoShort, Long bookerId) {
         if (bookingDtoShort.getEnd().isBefore(bookingDtoShort.getStart()) ||
                 bookingDtoShort.getEnd().equals(bookingDtoShort.getStart())) {
@@ -71,7 +70,6 @@ public class BookingService {
         }
     }
 
-    @Transactional
     public OutputBookingDto findBookingById(Long bookingId, Long userId) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException(String.format(
@@ -84,7 +82,6 @@ public class BookingService {
         }
     }
 
-    @Transactional
     public List<OutputBookingDto> findAllBookingsByUser(String state, Long userId, Integer from, Integer size) {
         checkFindUserById(userId);
         Pageable page = PageRequest.of(from / size, size);
@@ -113,7 +110,6 @@ public class BookingService {
         throw new BadRequestException(String.format("Unknown state: %s", state));
     }
 
-    @Transactional
     public List<OutputBookingDto> findAllBookingsByOwner(String state, Long ownerId, Integer from, Integer size) {
         checkFindUserById(ownerId);
         Pageable page = PageRequest.of(from / size, size);
@@ -137,7 +133,6 @@ public class BookingService {
         throw new BadRequestException(String.format("Unknown state: %s", state));
     }
 
-    @Transactional
     public OutputBookingDto approve(long bookingId, long userId, Boolean approve) {
         OutputBookingDto booking = findBookingById(bookingId, userId);
         Long ownerId = findOwnerId(booking.getItem().getId());

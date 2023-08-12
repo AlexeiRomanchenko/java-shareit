@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class ItemService {
     private final ItemRepository itemRepository;
@@ -41,7 +42,6 @@ public class ItemService {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
 
-    @Transactional
     public ItemDto create(Long userId, ItemDto itemDto) {
         checkFindUserById(userId);
         Item item = ItemMapper.toItem(itemDto);
@@ -49,7 +49,6 @@ public class ItemService {
         return ItemMapper.toItemDto(itemRepository.save(item));
     }
 
-    @Transactional
     public ItemDto findItemById(Long itemId, Long userId) {
         ItemDto result;
         Item item = itemRepository.findById(itemId)
@@ -63,7 +62,6 @@ public class ItemService {
         return result;
     }
 
-    @Transactional
     public List<ItemDto> findUserItems(Long userId, Integer from, Integer size) {
         Pageable page = PageRequest.of(from / size, size);
         List<ItemDto> item = itemRepository.findAllByOwnerId(userId, page).stream()
@@ -77,7 +75,6 @@ public class ItemService {
         return list;
     }
 
-    @Transactional
     public ItemDto save(ItemDto itemDto, Long itemId, Long userId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException(String.format("Вещь с ID = %d не найдена.", itemId)));
@@ -98,7 +95,6 @@ public class ItemService {
         return ItemMapper.toItemDto(itemRepository.save(item));
     }
 
-    @Transactional
     public ItemDto updateBookings(ItemDto itemDto) {
         LocalDateTime now = LocalDateTime.now();
         List<Booking> bookings = bookingRepository.findBookingsItem(itemDto.getId());
@@ -119,12 +115,10 @@ public class ItemService {
         return itemDto;
     }
 
-    @Transactional
     public void deleteById(Long itemId) {
         itemRepository.deleteById(itemId);
     }
 
-    @Transactional
     public List<ItemDto> search(String text, Integer from, Integer size) {
         Pageable page = PageRequest.of(from / size, size);
         if (text == null || text.isBlank()) {
@@ -135,14 +129,12 @@ public class ItemService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
     public Long findOwnerId(Long itemId) {
         return itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException(String.format("Вещь с ID = %d не найдена.", itemId)))
                 .getOwnerId();
     }
 
-    @Transactional
     public CommentDto addComment(Long itemId, Long userId, CommentDto commentDto) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException(String.format("Вещь с ID = %d не найдена.", itemId)));
