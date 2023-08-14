@@ -3,7 +3,6 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.description.BookingStatus;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.service.PageableRequest;
 import ru.practicum.shareit.booking.storage.BookingRepository;
 import ru.practicum.shareit.exception.NotAvailableException;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -63,7 +63,7 @@ public class ItemService {
     }
 
     public List<ItemDto> findUserItems(Long userId, Integer from, Integer size) {
-        Pageable page = PageRequest.of(from / size, size);
+        Pageable page = PageableRequest.of(from, size);
         List<ItemDto> item = itemRepository.findAllByOwnerId(userId, page).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
@@ -120,7 +120,7 @@ public class ItemService {
     }
 
     public List<ItemDto> search(String text, Integer from, Integer size) {
-        Pageable page = PageRequest.of(from / size, size);
+        Pageable page = PageableRequest.of(from, size);
         if (text == null || text.isBlank()) {
             return Collections.emptyList();
         }
