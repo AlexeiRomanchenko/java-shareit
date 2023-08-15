@@ -64,15 +64,21 @@ public class ItemService {
 
     public List<ItemDto> findUserItems(Long userId, Integer from, Integer size) {
         Pageable page = PageableRequest.of(from, size);
+
         List<ItemDto> item = itemRepository.findAllByOwnerId(userId, page).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
-        List<ItemDto> list = new ArrayList<>();
-        item.stream().map(this::updateBookings).forEach(i -> {
-            CommentMapper.toDtoList(commentRepository.findAllByItemId(i.getId()));
-            list.add(i);
-        });
-        return list;
+
+        List<Long> itemIds = item.stream().map(ItemDto::getId).collect(Collectors.toList());
+
+        List<CommentDto> comments = commentRepository.findAllByItemIdIn(itemIds).stream()
+                .map(CommentMapper::toDto)
+                .collect(Collectors.toList());
+
+        Map<Long, List<CommentDto>> commentsByItemId =
+                comments.stream().collect(Collectors.groupingBy(CommentDto::getId));
+        item.forEach(i -> i.setComments(commentsByItemId.getOrDefault(i.getId(), new ArrayList<>())));
+        return item;
     }
 
     public ItemDto save(ItemDto itemDto, Long itemId, Long userId) {
