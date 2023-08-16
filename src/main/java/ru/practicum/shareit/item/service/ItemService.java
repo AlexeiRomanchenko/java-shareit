@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import ru.practicum.shareit.booking.description.BookingStatus;
+import ru.practicum.shareit.booking.dto.ShortItemBookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.PageableRequest;
@@ -65,11 +66,11 @@ public class ItemService {
     public List<ItemDto> findUserItems(Long userId, Integer from, Integer size) {
         Pageable page = PageableRequest.of(from, size);
 
-        List<ItemDto> item = itemRepository.findAllByOwnerId(userId, page).stream()
+        List<ItemDto> items = itemRepository.findAllByOwnerId(userId, page).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
 
-        List<Long> itemIds = item.stream().map(ItemDto::getId).collect(Collectors.toList());
+        List<Long> itemIds = items.stream().map(ItemDto::getId).collect(Collectors.toList());
 
         List<CommentDto> comments = commentRepository.findAllByItemIdIn(itemIds).stream()
                 .map(CommentMapper::toDto)
@@ -77,8 +78,45 @@ public class ItemService {
 
         Map<Long, List<CommentDto>> commentsByItemId =
                 comments.stream().collect(Collectors.groupingBy(CommentDto::getId));
-        item.forEach(i -> i.setComments(commentsByItemId.getOrDefault(i.getId(), new ArrayList<>())));
-        return item;
+
+        Map<Long, List<Booking>> bookingsByItem = itemIds.stream()
+                .collect(Collectors.toMap(
+                        itemId -> itemId,
+                        bookingRepository::findBookingsItem
+                ));
+
+        items.forEach(i -> {
+            i.setComments(commentsByItemId.getOrDefault(i.getId(), new ArrayList<>()));
+            i.setLastBooking(searchLastBookingByItemId(i.getId(), bookingsByItem.get(i.getId())));
+            i.setNextBooking(searchNextBookingByItemId(i.getId(), bookingsByItem.get(i.getId())));
+        });
+        return items;
+    }
+
+    public ShortItemBookingDto searchLastBookingByItemId(Long itemDtoId, List<Booking> bookings) {
+        LocalDateTime now = LocalDateTime.now();
+        Booking lastBooking = bookings.stream()
+                .filter(obj -> !(obj.getStatus().equals(BookingStatus.REJECTED)))
+                .filter(obj -> obj.getStart().isBefore(now))
+                .min((obj1, obj2) -> obj2.getStart().compareTo(obj1.getStart())).orElse(null);
+
+        if (lastBooking != null) {
+            return BookingMapper.toItemBookingDto(lastBooking);
+        }
+        return null;
+    }
+
+    public ShortItemBookingDto searchNextBookingByItemId(Long itemDtoId, List<Booking> bookings) {
+        LocalDateTime now = LocalDateTime.now();
+        Booking nextBooking = bookings.stream()
+                .filter(obj -> !(obj.getStatus().equals(BookingStatus.REJECTED)))
+                .filter(obj -> obj.getStart().isAfter(now))
+                .min(Comparator.comparing(Booking::getStart)).orElse(null);
+
+        if (nextBooking != null) {
+            return BookingMapper.toItemBookingDto(nextBooking);
+        }
+        return null;
     }
 
     public ItemDto save(ItemDto itemDto, Long itemId, Long userId) {
