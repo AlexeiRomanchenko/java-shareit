@@ -28,6 +28,7 @@ public class BookingByItemService {
     BookingRepository bookingRepository;
     ItemRepository itemRepository;
     CommentRepository commentRepository;
+
     public Long findOwnerId(Long itemId) {
         return itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException(String.format("Вещь с ID = %d не найдена.", itemId)))
