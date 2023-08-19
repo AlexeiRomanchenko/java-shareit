@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.description.BookingStatus;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.item.comment.model.Comment;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -81,5 +80,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
                                                                    Long bookerId,
                                                                    BookingStatus status,
                                                                    LocalDateTime time);
+
     List<Booking> findAllByItemIdIn(List<Long> itemIds);
+
 }
