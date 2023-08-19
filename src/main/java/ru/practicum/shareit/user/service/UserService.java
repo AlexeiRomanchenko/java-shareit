@@ -37,12 +37,14 @@ public class UserService {
         userRepository.deleteById(userId);
     }
 
+    @Transactional(readOnly = true)
     public List<UserDto> findAllUsers() {
         return userRepository.findAll().stream()
                 .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public UserDto checkFindUserById(Long id) {
         return UserMapper.toUserDto(userRepository.findById(id).orElseThrow(
                 () -> new NotFoundException("Пользователь с id " + id + " не найден")));

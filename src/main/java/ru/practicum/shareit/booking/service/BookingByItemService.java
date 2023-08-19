@@ -25,16 +25,18 @@ import java.util.Objects;
 @Transactional
 @AllArgsConstructor
 public class BookingByItemService {
-    BookingRepository bookingRepository;
-    ItemRepository itemRepository;
-    CommentRepository commentRepository;
+    private final BookingRepository bookingRepository;
+    private final ItemRepository itemRepository;
+    private final CommentRepository commentRepository;
 
+    @Transactional(readOnly = true)
     public Long findOwnerId(Long itemId) {
         return itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException(String.format("Вещь с ID = %d не найдена.", itemId)))
                 .getOwnerId();
     }
 
+    @Transactional(readOnly = true)
     public ItemDto findItemById(Long itemId, Long userId) {
         ItemDto result;
         Item item = itemRepository.findById(itemId)

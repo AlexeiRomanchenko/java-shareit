@@ -63,6 +63,7 @@ public class BookingService {
         }
     }
 
+    @Transactional(readOnly = true)
     public OutputBookingDto findBookingById(Long bookingId, Long userId) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException(String.format(
@@ -75,6 +76,7 @@ public class BookingService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<OutputBookingDto> findAllBookingsByUser(String state, Long userId, Integer from, Integer size) {
         checkFindUserById(userId);
         Pageable page = PageableRequest.of(from, size, Sort.by("start").descending());
@@ -105,6 +107,7 @@ public class BookingService {
         throw new BadRequestException(String.format("Unknown state: %s", state));
     }
 
+    @Transactional(readOnly = true)
     public List<OutputBookingDto> findAllBookingsByOwner(String state, Long ownerId, Integer from, Integer size) {
         checkFindUserById(ownerId);
         Pageable page = PageableRequest.of(from, size, Sort.by("start").descending());
@@ -148,6 +151,7 @@ public class BookingService {
         return booking;
     }
 
+    @Transactional(readOnly = true)
     public UserDto checkFindUserById(Long id) {
         return UserMapper.toUserDto(userRepository.findById(id).orElseThrow(
                 () -> new NotFoundException("Пользователь с id " + id + " не найден")));
