@@ -1,6 +1,6 @@
 package ru.practicum.shareit.user;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -20,10 +19,9 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping(path = "/users")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserController {
-    private UserService userService;
-    private ItemService itemService;
+    private final UserService userService;
 
     @PostMapping
     public UserDto create(@Valid @RequestBody UserDto userDto) {
@@ -32,29 +30,27 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public UserDto update(@RequestBody UserDto userDto, @PathVariable Long userId) {
+    public UserDto save(@RequestBody UserDto userDto, @PathVariable long userId) {
         log.info("Получен запрос на обновление пользователя с ID = {}", userId);
-        return userService.update(userDto, userId);
+        return userService.save(userDto, userId);
     }
 
     @DeleteMapping("/{userId}")
-    public UserDto delete(@PathVariable Long userId) {
+    public void delete(@PathVariable long userId) {
         log.info("Получен запрос на удаление пользователя с ID = {}", userId);
-        UserDto userDto = userService.delete(userId);
-        itemService.deleteItemsByOwner(userId);
-        return userDto;
+        userService.delete(userId);
     }
 
     @GetMapping
-    public List<UserDto> getUsers() {
+    public List<UserDto> findAll() {
         log.info("Получен запрос на получение списка всех пользователей");
-        return userService.getUsers();
+        return userService.findAllUsers();
     }
 
     @GetMapping("/{userId}")
-    public UserDto getUserById(@PathVariable Long userId) {
+    public UserDto findById(@PathVariable long userId) {
         log.info("Получен запрос на получение пользователя с ID = {}", userId);
-        return userService.getUserById(userId);
+        return userService.checkFindUserById(userId);
     }
 
 }
