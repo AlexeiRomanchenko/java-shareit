@@ -50,4 +50,9 @@ public class UserService {
                 () -> new NotFoundException("Пользователь с id " + id + " не найден")));
     }
 
+    public UserDto findUserById(Long userId) {
+        return UserMapper.toUserDto(userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден")));
+    }
+
 }

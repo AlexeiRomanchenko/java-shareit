@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -79,9 +80,8 @@ public class BookingService {
     @Transactional(readOnly = true)
     public List<OutputBookingDto> findAllBookingsByUser(String state, Long userId, Integer from, Integer size) {
         checkFindUserById(userId);
-        Pageable page = PageableRequest.of(from, size, Sort.by("start").descending());
         LocalDateTime now = LocalDateTime.now();
-
+        Pageable page = PageRequest.of(from/size, size, Sort.by("start").descending());
         BookingTimeStatus bookingTimeStatus = BookingTimeStatus.getStatusByValue(state);
         switch (bookingTimeStatus) {
             case ALL:
@@ -112,19 +112,20 @@ public class BookingService {
         checkFindUserById(ownerId);
         Pageable page = PageableRequest.of(from, size, Sort.by("start").descending());
         LocalDateTime now = LocalDateTime.now();
-        switch (state) {
-            case "ALL":
+        BookingTimeStatus bookingTimeStatus = BookingTimeStatus.getStatusByValue(state);
+        switch (bookingTimeStatus) {
+            case ALL:
                 return BookingMapper.toBookingDto(bookingRepository.findByItemOwnerId(ownerId, page));
-            case "CURRENT":
+            case CURRENT:
                 return BookingMapper.toBookingDto(bookingRepository.findCurrentBookingsOwner(ownerId, now, page));
-            case "PAST":
+            case PAST:
                 return BookingMapper.toBookingDto(bookingRepository.findPastBookingsOwner(ownerId, now, page));
-            case "FUTURE":
+            case FUTURE:
                 return BookingMapper.toBookingDto(bookingRepository.findFutureBookingsOwner(ownerId, now, page));
-            case "WAITING":
+            case WAITING:
                 return BookingMapper.toBookingDto(bookingRepository
                         .findWaitingBookingsOwner(ownerId, now, BookingStatus.WAITING, page));
-            case "REJECTED":
+            case REJECTED:
                 return BookingMapper.toBookingDto(bookingRepository
                         .findRejectedBookingsOwner(ownerId, BookingStatus.REJECTED, page));
         }

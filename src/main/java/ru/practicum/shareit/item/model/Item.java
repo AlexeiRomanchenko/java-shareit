@@ -34,8 +34,9 @@ public class Item {
     private Booking nextBooking;
     @Transient
     private List<CommentDto> comments;
-    @Transient
+
+    @ManyToOne
     @JoinColumn(name = "request_id")
-    private ItemRequest requestId;
+    private ItemRequest itemRequest;
 
 }

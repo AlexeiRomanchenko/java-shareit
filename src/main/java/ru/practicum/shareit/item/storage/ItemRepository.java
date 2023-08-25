@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.model.ItemRequest;
 
 import java.util.List;
 
@@ -17,5 +18,9 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             + "AND i.available = true")
 
     List<Item> searchAvailableItems(@Param("text") String text, Pageable page);
+
+    List<Item> findAllByItemRequest(ItemRequest itemRequest);
+
+    List<Item> findAllByItemRequestIsNotNull();
 
 }
