@@ -42,7 +42,7 @@ public class BookingService {
         if (bookingDtoShort.getEnd().isBefore(bookingDtoShort.getStart()) ||
                 bookingDtoShort.getEnd().equals(bookingDtoShort.getStart())) {
             throw new TimeDataException(String
-                    .format("Время начала = %s  и конца = %s бронирования - неверное",
+                    .format("Время начала = %s и конца = %s бронирования - неверное",
                             bookingDtoShort.getStart(), bookingDtoShort.getEnd()));
         }
         User booker = UserMapper.toUser(checkFindUserById(bookerId));
