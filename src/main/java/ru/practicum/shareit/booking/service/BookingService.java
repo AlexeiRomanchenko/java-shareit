@@ -81,8 +81,9 @@ public class BookingService {
     public List<OutputBookingDto> findAllBookingsByUser(String state, Long userId, Integer from, Integer size) {
         checkFindUserById(userId);
         LocalDateTime now = LocalDateTime.now();
-        Pageable page = PageRequest.of(from/size, size, Sort.by("start").descending());
+        Pageable page = PageRequest.of(from / size, size, Sort.by("start").descending());
         BookingTimeStatus bookingTimeStatus = BookingTimeStatus.getStatusByValue(state);
+
         switch (bookingTimeStatus) {
             case ALL:
                 return BookingMapper.toBookingDto(bookingRepository.findByBookerId(userId, page));
