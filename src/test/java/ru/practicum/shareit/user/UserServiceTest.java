@@ -23,12 +23,11 @@ import static org.mockito.ArgumentMatchers.anyLong;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
-
     @InjectMocks
     private UserService userService;
-
     @Mock
     private UserRepository userRepository;
+
     private final User user = new User(1L, "User", "user@email.com");
     private final UserDto userDto = new UserDto(1L, "User", "user@email.com");
     private final User user2 = new User(2L, "User2", "user2@email.ru");

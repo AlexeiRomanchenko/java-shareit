@@ -26,22 +26,17 @@ import java.util.List;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class ItemRequest {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @Column(name = "description", nullable = false)
     private String description;
-
     @ManyToOne
     @JoinColumn(name = "requester_id")
     private User requester;
-
     @Column(name = "created")
     @CreationTimestamp
     private LocalDateTime created;
-
     @Transient
     private List<Item> items;
 

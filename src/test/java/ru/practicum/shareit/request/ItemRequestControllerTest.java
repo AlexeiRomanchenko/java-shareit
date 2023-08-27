@@ -11,15 +11,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.service.ItemRequestService;
-import ru.practicum.shareit.user.service.UserService;
 
 import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -33,9 +30,8 @@ class ItemRequestControllerTest {
     @Autowired
     private MockMvc mvc;
     @MockBean
-    private UserService userService;
-    @MockBean
     private ItemRequestService requestService;
+
     private final ItemRequestDto itemRequestDto = ItemRequestDto.builder().id(1L).description("testDescription").build();
 
     @Test
@@ -87,7 +83,7 @@ class ItemRequestControllerTest {
     @Test
     void findByIdWhenRequestIsNotExistThanReturnedStatusIsNotFound() throws Exception {
         Mockito.when(requestService.findById(anyLong(), anyLong()))
-                .thenThrow(new NotFoundException(String.format("Request with ID = %d not found.", 1L)));
+                .thenThrow(new NotFoundException(String.format("Запрос с id  = %d не найден", 1L)));
 
         mvc.perform(get("/requests/{requestId}", 1L)
                         .header("X-Sharer-User-Id", 1L))
@@ -115,7 +111,7 @@ class ItemRequestControllerTest {
     @Test
     void findAllUserRequestsWhenUserIsNotExistThenReturnedStatusIsNotFound() throws Exception {
         Mockito.when(requestService.findUserRequests(anyLong()))
-                .thenThrow(new NotFoundException(String.format("User with ID = %d not found.", 100L)));
+                .thenThrow(new NotFoundException(String.format("Пользователь с id = %d не найден.", 100L)));
 
         mvc.perform(get("/requests")
                         .header("X-Sharer-User-Id", 100L))
