@@ -21,8 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = BookingController.class)
@@ -177,6 +176,24 @@ class BookingControllerTest {
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
+    }
+
+    @Test
+    void updateBookingTest() throws Exception {
+
+        Mockito.when(bookingService.approve(anyLong(), anyInt(), anyBoolean()))
+                .thenReturn(outputBookingDto);
+
+        mvc.perform(patch("/bookings/{bookingId}?approved=true", 1L)
+                        .header("X-Sharer-User-Id", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(outputBookingDto)))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        verify(bookingService).approve(1L, 1L, true);
     }
 
 }

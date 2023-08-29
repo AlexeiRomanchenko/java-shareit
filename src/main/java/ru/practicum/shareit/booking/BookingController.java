@@ -40,7 +40,8 @@ public class BookingController {
     }
 
     @GetMapping("/{bookingId}")
-    public OutputBookingDto findById(@RequestHeader(OWNER_ID_HEADER) Long userId, @PathVariable Long bookingId) {
+    public OutputBookingDto findById(@RequestHeader(OWNER_ID_HEADER) Long userId,
+                                     @PathVariable Long bookingId) {
         log.info("Получен запрос на получение бронирования с ID = {}", bookingId);
         return bookingService.findBookingById(bookingId, userId);
     }
