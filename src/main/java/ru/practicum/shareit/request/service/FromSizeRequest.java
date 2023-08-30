@@ -10,11 +10,11 @@ public class FromSizeRequest extends PageRequest {
         this.from = from;
     }
 
-    public static ru.practicum.shareit.booking.service.FromSizeRequest of(int from, int size) {
+    public static FromSizeRequest of(int from, int size) {
         return of(from, size, Sort.unsorted());
     }
-    public static ru.practicum.shareit.booking.service.FromSizeRequest of(int from, int size, Sort sort) {
-        return new ru.practicum.shareit.booking.service.FromSizeRequest(from, size, sort);
+    public static FromSizeRequest of(int from, int size, Sort sort) {
+        return new FromSizeRequest(from, size, sort);
     }
 
 }
