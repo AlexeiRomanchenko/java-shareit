@@ -12,7 +12,7 @@ import ru.practicum.shareit.booking.dto.OutputBookingDto;
 import ru.practicum.shareit.booking.dto.ShortItemBookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.service.PageableRequest;
+import ru.practicum.shareit.booking.service.FromSizeRequest;
 import ru.practicum.shareit.booking.storage.BookingRepository;
 import ru.practicum.shareit.exception.NotAvailableException;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -72,7 +72,7 @@ public class ItemService {
 
     @Transactional(readOnly = true)
     public List<ItemDto> findUserItems(Long userId, Integer from, Integer size) {
-        Pageable page = PageableRequest.of(from, size);
+        Pageable page = FromSizeRequest.of(from, size);
 
         List<ItemDto> items = itemRepository.findAllByOwnerId(userId, page).stream()
                 .map(ItemMapper::toItemDto)
@@ -175,7 +175,7 @@ public class ItemService {
 
     @Transactional(readOnly = true)
     public List<ItemDto> search(String text, Integer from, Integer size) {
-        Pageable page = PageableRequest.of(from, size);
+        Pageable page = FromSizeRequest.of(from, size);
         if (text == null || text.isBlank()) {
             return Collections.emptyList();
         }

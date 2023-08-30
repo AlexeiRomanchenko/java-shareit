@@ -93,8 +93,8 @@ public class BookingByItemServiceTest {
         Mockito.when(itemRepository.findById(anyLong()))
                 .thenThrow(new NotFoundException(String.format("Вещь с ID = %d не найдена.", 100L)));
 
-        Exception e = assertThrows(NotFoundException.class, () -> bookingByItemService
-                .findItemById(100L, 1L));
+        Exception e = assertThrows(NotFoundException.class,
+                () -> bookingByItemService.findItemById(100L, 1L));
 
         assertEquals(e.getMessage(), String.format("Вещь с ID = %d не найдена.", 100L));
     }
@@ -119,6 +119,27 @@ public class BookingByItemServiceTest {
         assertEquals(requestedItemDto.getLastBooking().getBookerId(), 1L);
         assertEquals(requestedItemDto.getNextBooking().getId(), 2L);
         assertEquals(requestedItemDto.getNextBooking().getBookerId(), 1L);
+    }
+
+    @Test
+    void findOwnerId() {
+        Mockito.when(itemRepository.findById(anyLong()))
+                .thenReturn(Optional.of(item));
+
+        Long ownerId = bookingByItemService.findOwnerId(1L);
+
+        assertEquals(1L, ownerId);
+    }
+
+    @Test
+    void findOwnerIdNotFound() {
+
+        Mockito.when(itemRepository.findById(anyLong()))
+                .thenThrow(new NotFoundException(String.format("Вещь с ID = %d не найдена.", 100L)));
+
+        Exception e = assertThrows(NotFoundException.class,
+                () -> bookingByItemService.findOwnerId(100L));
+        assertEquals(e.getMessage(), String.format("Вещь с ID = %d не найдена.", 100L));
     }
 
 }

@@ -1,11 +1,10 @@
 package ru.practicum.shareit.request.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.booking.service.PageableRequest;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemRepository;
@@ -30,18 +29,13 @@ public class ItemRequestService {
     private final ItemRepository itemRepository;
 
     public ItemRequestDto create(ItemRequestDto itemRequestDto, Long userId) {
-        ItemRequest itemRequest = ItemRequest.builder()
-                .description(itemRequestDto.getDescription())
-                .requester(UserMapper.toUser(userService.findUserById(userId)))
-                .created(LocalDateTime.now())
-                .build();
+        ItemRequest itemRequest = ItemRequest.builder().description(itemRequestDto.getDescription()).requester(UserMapper.toUser(userService.findUserById(userId))).created(LocalDateTime.now()).build();
         return ItemRequestMapper.toItemRequestDto(requestRepository.save(itemRequest));
     }
 
     @Transactional(readOnly = true)
     public ItemRequestDto findById(Long userId, Long requestId) {
-        ItemRequest itemRequest = requestRepository.findById(requestId)
-                .orElseThrow(() -> new NotFoundException("Запрос с Id = " + requestId + "не найден"));
+        ItemRequest itemRequest = requestRepository.findById(requestId).orElseThrow(() -> new NotFoundException("Запрос с Id = " + requestId + "не найден"));
 
         itemRequest.setItems(itemRepository.findAllByItemRequest(itemRequest));
         ItemRequestDto itemRequestDto = ItemRequestMapper.toItemRequestDto(itemRequest);
@@ -52,19 +46,16 @@ public class ItemRequestService {
     @Transactional(readOnly = true)
     public List<ItemRequestDto> findRequests(Long userId, int from, int size) {
         UserMapper.toUser(userService.findUserById(userId));
-        Pageable page = PageableRequest.of(from, size, Sort.by("created").descending());
+        PageRequest page = FromSizeRequest.of(from, size, Sort.by("created").descending());
 
         List<ItemRequest> itemRequests = requestRepository.findByRequesterIdIsNot(userId, page);
 
-        Map<Long, List<Item>> itemsByItemRequestId = itemRepository.findAllByItemRequestIsNotNull()
-                .stream().collect(Collectors.groupingBy(item -> item.getItemRequest().getId()));
+        Map<Long, List<Item>> itemsByItemRequestId = itemRepository.findAllByItemRequestIsNotNull().stream().collect(Collectors.groupingBy(item -> item.getItemRequest().getId()));
 
-        List<ItemRequestDto> list = itemRequests.stream()
-                .map(itemRequest -> {
-                    itemRequest.setItems(itemsByItemRequestId.get(itemRequest.getId()));
-                    return ItemRequestMapper.toItemRequestDto(itemRequest);
-                })
-                .collect(Collectors.toList());
+        List<ItemRequestDto> list = itemRequests.stream().map(itemRequest -> {
+            itemRequest.setItems(itemsByItemRequestId.get(itemRequest.getId()));
+            return ItemRequestMapper.toItemRequestDto(itemRequest);
+        }).collect(Collectors.toList());
 
         return list;
 
@@ -75,15 +66,12 @@ public class ItemRequestService {
         userService.findUserById(userId);
         List<ItemRequest> itemRequests = requestRepository.findByRequesterIdOrderByCreatedDesc(userId);
 
-        Map<Long, List<Item>> itemsByItemRequestId = itemRepository.findAllByItemRequestIsNotNull()
-                .stream().collect(Collectors.groupingBy(item -> item.getItemRequest().getId()));
+        Map<Long, List<Item>> itemsByItemRequestId = itemRepository.findAllByItemRequestIsNotNull().stream().collect(Collectors.groupingBy(item -> item.getItemRequest().getId()));
 
-        List<ItemRequestDto> list = itemRequests.stream()
-                .map(itemRequest -> {
-                    itemRequest.setItems(itemsByItemRequestId.get(itemRequest.getId()));
-                    return ItemRequestMapper.toItemRequestDto(itemRequest);
-                })
-                .collect(Collectors.toList());
+        List<ItemRequestDto> list = itemRequests.stream().map(itemRequest -> {
+            itemRequest.setItems(itemsByItemRequestId.get(itemRequest.getId()));
+            return ItemRequestMapper.toItemRequestDto(itemRequest);
+        }).collect(Collectors.toList());
 
         return list;
     }
