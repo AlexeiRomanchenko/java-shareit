@@ -94,7 +94,8 @@ class ItemServiceTest {
                     .status(BookingStatus.WAITING).build());
 
     private final Comment comment = Comment.builder().id(1L).text("Text").item(item).author(user).build();
-    private final CommentDto commentDto = CommentDto.builder().id(1L).text("Text").item(itemDto).authorName("User").build();
+    private final CommentDto commentDto =
+            CommentDto.builder().id(1L).text("Text").item(itemDto).authorName("User").build();
 
     @Test
     void createItemWhenAllIsValidThenReturnedExpectedItem() {
