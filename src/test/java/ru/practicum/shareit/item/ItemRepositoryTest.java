@@ -6,6 +6,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemRepository;
 import ru.practicum.shareit.request.model.ItemRequest;
@@ -14,6 +15,8 @@ import ru.practicum.shareit.user.model.User;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyLong;
 
 @ExtendWith(MockitoExtension.class)
 public class ItemRepositoryTest {
@@ -96,6 +99,16 @@ public class ItemRepositoryTest {
         List<Item> actualItems = itemRepository.findAllByItemRequestIsNotNull();
 
         assertEquals(expectedItems, actualItems);
+    }
+
+    @Test
+    public void testFindByIdNotFound() {
+        Mockito.when(itemRepository.findById(anyLong()))
+                .thenThrow(new NotFoundException(String.format("Вещь с ID = %d не найдена.", 100L)));
+
+        Exception e = assertThrows(NotFoundException.class,
+                () -> itemRepository.findById(100L));
+        assertEquals(e.getMessage(), String.format("Вещь с ID = %d не найдена.", 100L));
     }
 
 }

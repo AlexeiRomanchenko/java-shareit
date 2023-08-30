@@ -102,7 +102,8 @@ public class BookingService {
                                 BookingStatus.WAITING, page));
             case REJECTED:
                 return BookingMapper.toBookingDto(bookingRepository
-                        .findByBookerIdAndStatusIs(userId, BookingStatus.REJECTED, page));
+                        .findByBookerIdAndStatusIs(userId,
+                                BookingStatus.REJECTED, page));
 
         }
         throw new BadRequestException(String.format("Unknown state: %s", state));

@@ -206,7 +206,7 @@ public class ItemService {
             comment.setCreated(LocalDateTime.now());
             return CommentMapper.toDto(commentRepository.save(comment));
         } else {
-            throw new NotAvailableException(String.format("" +
+            throw new NotAvailableException(String.format(
                     "Бронирование не найдено для пользователя с ID = %d и вещи с ID = %d.", userId, itemId));
         }
     }

@@ -151,6 +151,12 @@ class BookingServiceTest {
     }
 
     @Test
+    void createBookingWhenItemIsAvailableThenReturnedNotAvailableException() {
+        itemDto.setAvailable(true);
+
+    }
+
+    @Test
     void findBookingByIdWhenBookingIsNotFoundThenReturnedNotFoundException() {
         Mockito.when(bookingRepository.findById(anyLong()))
                 .thenReturn(Optional.empty());
@@ -199,7 +205,7 @@ class BookingServiceTest {
             "CURRENT, -1, 1",
             "PAST, -2, -1",
             "FUTURE, 1, 2",
-            "WAITING, 0, 1",
+            "WAITING, 0, 1"
     })
     void getByUserIdAndStateTest(String state, int addToStart, int addToEnd) {
         LocalDateTime start = LocalDateTime.now().plusDays(addToStart);
@@ -211,21 +217,21 @@ class BookingServiceTest {
         testBooking.setStart(start);
         testBooking.setEnd(end);
 
-        Mockito.when(itemRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(testItem));
-        Mockito.when(userRepository.existsById(Mockito.anyLong())).thenReturn(true);
+        Mockito.when(itemRepository.findById(anyLong())).thenReturn(Optional.of(testItem));
+        Mockito.when(userRepository.existsById(anyLong())).thenReturn(true);
         Mockito.when(bookingRepository.save(any(Booking.class))).thenReturn(testBooking);
 
         Mockito.when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(user1));
-        Mockito.when(bookingRepository.findByBookerId(Mockito.anyLong(), any()))
+        Mockito.when(bookingRepository.findByBookerId(anyLong(), any()))
                 .thenReturn(List.of(testBooking));
         Mockito.when(bookingRepository.findByBookerIdAndEndIsAfterAndStartIsBefore(
-                Mockito.anyLong(), any(), any(), any())).thenReturn(List.of(testBooking));
-        Mockito.when(bookingRepository.findByBookerIdAndEndIsBefore(Mockito.anyLong(),
+                anyLong(), any(), any(), any())).thenReturn(List.of(testBooking));
+        Mockito.when(bookingRepository.findByBookerIdAndEndIsBefore(anyLong(),
                 any(), any())).thenReturn(List.of(testBooking));
-        Mockito.when(bookingRepository.findByBookerIdAndStartIsAfter(Mockito.anyLong(),
+        Mockito.when(bookingRepository.findByBookerIdAndStartIsAfter(anyLong(),
                 any(), any())).thenReturn(List.of(testBooking));
-        Mockito.when(bookingRepository.findByBookerIdAndStartIsAfterAndStatusIs(Mockito.anyLong(),
+        Mockito.when(bookingRepository.findByBookerIdAndStartIsAfterAndStatusIs(anyLong(),
                 any(), any(), any())).thenReturn(List.of(testBooking));
         List<OutputBookingDto> bookings = bookingService.findAllBookingsByUser(state, testUser1.getId(), 0, 10);
         assertFalse(bookings.isEmpty());
@@ -260,19 +266,19 @@ class BookingServiceTest {
         testBooking.setStart(start);
         testBooking.setEnd(end);
 
-        Mockito.when(itemRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(testItem));
-        Mockito.when(userRepository.existsById(Mockito.anyLong())).thenReturn(true);
+        Mockito.when(itemRepository.findById(anyLong())).thenReturn(Optional.of(testItem));
+        Mockito.when(userRepository.existsById(anyLong())).thenReturn(true);
         Mockito.when(userRepository.findById(anyLong())).thenReturn(Optional.of(user1));
         Mockito.when(bookingRepository.save(any(Booking.class))).thenReturn(testBooking);
-        Mockito.when(bookingRepository.findByItemOwnerId(Mockito.anyLong(), any()))
+        Mockito.when(bookingRepository.findByItemOwnerId(anyLong(), any()))
                 .thenReturn(List.of(testBooking));
         Mockito.when(bookingRepository.findCurrentBookingsOwner(
-                Mockito.anyLong(), any(), any())).thenReturn(List.of(testBooking));
-        Mockito.when(bookingRepository.findByBookerIdAndEndIsBefore(Mockito.anyLong(),
+                anyLong(), any(), any())).thenReturn(List.of(testBooking));
+        Mockito.when(bookingRepository.findByBookerIdAndEndIsBefore(anyLong(),
                 any(), any())).thenReturn(List.of(testBooking));
         Mockito.when(bookingRepository.findPastBookingsOwner(
-                Mockito.anyLong(), any(), any())).thenReturn(List.of(testBooking));
-        Mockito.when(bookingRepository.findFutureBookingsOwner(Mockito.anyLong(),
+                anyLong(), any(), any())).thenReturn(List.of(testBooking));
+        Mockito.when(bookingRepository.findFutureBookingsOwner(anyLong(),
                 any(), any())).thenReturn(List.of(testBooking));
         List<OutputBookingDto> bookings = bookingService.findAllBookingsByOwner(state, itemOwner.getId(), 0, 10);
         assertEquals(1, bookings.size());

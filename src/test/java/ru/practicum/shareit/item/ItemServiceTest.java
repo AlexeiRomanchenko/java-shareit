@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.booking.description.BookingStatus;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.storage.BookingRepository;
+import ru.practicum.shareit.exception.NotAvailableException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.OperationAccessException;
 import ru.practicum.shareit.item.comment.dto.CommentDto;
@@ -263,6 +264,60 @@ class ItemServiceTest {
         itemService.deleteById(1L);
 
         Mockito.verify(itemRepository).deleteById(1L);
+    }
+
+    @Test
+    void findOwnerId() {
+        Mockito.when(itemRepository.findById(anyLong()))
+                .thenReturn(Optional.of(item));
+
+        Long ownerId = itemService.findOwnerId(1L);
+
+        assertEquals(1L, ownerId);
+    }
+
+    @Test
+    void findOwnerIdNotFound() {
+
+        Mockito.when(itemRepository.findById(anyLong()))
+                .thenThrow(new NotFoundException(String.format("Вещь с ID = %d не найдена.", 100L)));
+
+        Exception e = assertThrows(NotFoundException.class,
+                () -> itemService.findOwnerId(100L));
+        assertEquals(e.getMessage(), String.format("Вещь с ID = %d не найдена.", 100L));
+    }
+
+    @Test
+    public void checkFindUserByIdThrowsNotFoundException() {
+        Exception e = assertThrows(NotFoundException.class,
+                () -> itemService.checkFindUserById(100L));
+        assertEquals(e.getMessage(), String.format("Пользователь с id %d не найден", 100L));
+    }
+
+    @Test
+    public void addCommentNotFoundItemException() {
+        Mockito.when(itemRepository.findById(anyLong()))
+                .thenThrow(new NotFoundException(String.format("Вещь с ID = %d не найдена.", 10L)));
+
+        Exception e = assertThrows(NotFoundException.class,
+                () -> itemService.addComment(10L, 10L, commentDto));
+        assertEquals(e.getMessage(), String.format("Вещь с ID = %d не найдена.", 10L));
+    }
+
+    @Test
+    public void addCommentNotAvailableException() {
+
+        Mockito.when(itemRepository.findById(anyLong()))
+                .thenReturn(Optional.of(item));
+
+        Mockito.when(userRepository.findById(anyLong()))
+                .thenReturn(Optional.of(user));
+
+        Exception e = assertThrows(NotAvailableException.class,
+                () -> itemService.addComment(10L, 100L, commentDto));
+        assertEquals(
+                e.getMessage(),
+                String.format("Бронирование не найдено для пользователя с ID = %d и вещи с ID = %d.", 100L, 10L));
     }
 
 }

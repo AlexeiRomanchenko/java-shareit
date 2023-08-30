@@ -8,6 +8,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.user.storage.UserRepository;
@@ -106,6 +107,16 @@ class UserServiceTest {
         userService.delete(1L);
 
         Mockito.verify(userRepository).deleteById(1L);
+    }
+
+    @Test
+    public void checkFindUserByIdThrowsNotFoundException() {
+        Mockito.when(userRepository.findById(anyLong()))
+                .thenThrow(new NotFoundException(String.format("Пользователь с id %d не найден", 100L)));
+
+        Exception e = assertThrows(NotFoundException.class,
+                () -> UserMapper.toUser(userService.checkFindUserById(100L)));
+        assertEquals(e.getMessage(), String.format("Пользователь с id %d не найден", 100L));
     }
 
 }
