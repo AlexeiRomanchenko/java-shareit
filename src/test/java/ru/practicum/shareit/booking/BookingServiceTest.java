@@ -19,9 +19,11 @@ import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.booking.storage.BookingRepository;
 import ru.practicum.shareit.exception.*;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.item.storage.ItemRepository;
+import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserRepository;
 
@@ -205,7 +207,8 @@ class BookingServiceTest {
             "CURRENT, -1, 1",
             "PAST, -2, -1",
             "FUTURE, 1, 2",
-            "WAITING, 0, 1"
+            "WAITING, 0, 1",
+            "REJECTED, 1, 1"
     })
     void getByUserIdAndStateTest(String state, int addToStart, int addToEnd) {
         LocalDateTime start = LocalDateTime.now().plusDays(addToStart);
@@ -234,8 +237,29 @@ class BookingServiceTest {
         Mockito.when(bookingRepository.findByBookerIdAndStartIsAfterAndStatusIs(anyLong(),
                 any(), any(), any())).thenReturn(List.of(testBooking));
         List<OutputBookingDto> bookings = bookingService.findAllBookingsByUser(state, testUser1.getId(), 0, 10);
-        assertFalse(bookings.isEmpty());
-        assertEquals(bookings.get(0).getId(), 1L);
+
+        if (!state.equals("REJECTED")) {
+            assertFalse(bookings.isEmpty());
+            assertEquals(bookings.get(0).getId(), 1L);
+        } else {
+            assertTrue(bookings.isEmpty());
+        }
+    }
+
+    @Test
+    public void testFindAllBookingsWithUnknownState() {
+        Integer from = 0;
+        Integer size = 10;
+        String state = "unknown";
+
+        Mockito.when(userRepository.findById(anyLong()))
+                .thenReturn(Optional.of(user1));
+
+        Exception e = assertThrows(BadRequestException.class,
+                () -> bookingService.findAllBookingsByUser(state, 1L, from, size));
+
+        assertEquals(e.getMessage(), "Unknown state: " + state);
+
     }
 
     @ParameterizedTest
@@ -243,7 +267,8 @@ class BookingServiceTest {
             "ALL, 0, 2",
             "CURRENT, -1, 1",
             "PAST, -2, -1",
-            "FUTURE, 1, 2",
+            "WAITING, 0, 1",
+            "REJECTED, 1, 1"
     })
     void getByItemOwnerIdAndStateTest(String state, int addToStart, int addToEnd) {
         LocalDateTime start = LocalDateTime.now().plusDays(addToStart);
@@ -281,8 +306,14 @@ class BookingServiceTest {
         Mockito.when(bookingRepository.findFutureBookingsOwner(anyLong(),
                 any(), any())).thenReturn(List.of(testBooking));
         List<OutputBookingDto> bookings = bookingService.findAllBookingsByOwner(state, itemOwner.getId(), 0, 10);
-        assertEquals(1, bookings.size());
-        assertEquals(bookings.get(0).getId(), 1L);
+
+        if (state.equals("WAITING") || state.equals("REJECTED")) {
+            assertEquals(0, bookings.size());
+        } else {
+            assertEquals(1, bookings.size());
+            assertEquals(bookings.get(0).getId(), 1L);
+        }
+
     }
 
     @Test
@@ -297,6 +328,29 @@ class BookingServiceTest {
                 () -> bookingService.approve(1L, 1L, true));
 
         assertEquals(e.getMessage(), "Бронирование уже подтверждено.");
+    }
+
+    @Test
+    void approveWhenBookingDecisionTest() {
+        OutputBookingDto testOutputBookingDto = OutputBookingDto.builder()
+                .id(1L)
+                .item(ItemMapper.toItemDto(item))
+                .booker(UserMapper.toUserDto(user1))
+                .status(BookingStatus.APPROVED)
+                .build();
+
+        Mockito.when(bookingRepository.findById(anyLong()))
+                .thenReturn(Optional.of(booking2));
+
+        Mockito.when(itemService.findOwnerId(anyLong()))
+                .thenReturn(1L);
+
+        Mockito.when(bookingByItemService.findOwnerId(anyLong()))
+                .thenReturn(1L);
+
+        OutputBookingDto outputBookingDto = bookingService.approve(1L, 1L, true);
+
+        assertEquals(testOutputBookingDto, outputBookingDto);
     }
 
     @Test
