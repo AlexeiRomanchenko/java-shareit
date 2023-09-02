@@ -16,15 +16,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class InputBookingDto {
     private static final String FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
-
     @NotNull
     private Long itemId;
-
     @NotNull
     @Future
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = FORMAT)
     private LocalDateTime start;
-    
     @NotNull
     @Future
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = FORMAT)
