@@ -2,11 +2,9 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import ru.practicum.shareit.booking.description.BookingStatus;
 import ru.practicum.shareit.booking.dto.OutputBookingDto;
 import ru.practicum.shareit.booking.dto.ShortItemBookingDto;
@@ -26,7 +24,6 @@ import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemRepository;
 import ru.practicum.shareit.request.mapper.ItemRequestMapper;
-import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -45,14 +42,14 @@ public class ItemService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
-    private final ItemRequestService requestService;
+    private final ItemByRequestService itemByRequestService;
 
     public ItemDto create(Long userId, ItemDto itemDto) {
         checkFindUserById(userId);
         Item item = ItemMapper.toItem(itemDto);
         item.setOwnerId(userId);
         item.setItemRequest(itemDto.getRequestId() != null ?
-                ItemRequestMapper.toItemRequest(requestService.findById(userId, itemDto.getRequestId())) : null);
+                ItemRequestMapper.toItemRequest(itemByRequestService.findById(userId, itemDto.getRequestId())) : null);
         return ItemMapper.toItemDto(itemRepository.save(item));
     }
 

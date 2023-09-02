@@ -20,10 +20,10 @@ import static org.mockito.ArgumentMatchers.anyLong;
 
 @ExtendWith(MockitoExtension.class)
 public class ItemRepositoryTest {
-    ItemRepository itemRepository = Mockito.mock(ItemRepository.class);
+    private final ItemRepository itemRepository = Mockito.mock(ItemRepository.class);
 
-    User user = new User(1L, "user@email.com", "User");
-    ItemRequest itemRequest = ItemRequest.builder()
+    private final User user = new User(1L, "user@email.com", "User");
+    private final ItemRequest itemRequest = ItemRequest.builder()
             .id(1L)
             .requester(user)
             .description("description")

@@ -17,11 +17,11 @@ import ru.practicum.shareit.item.comment.model.Comment;
 import ru.practicum.shareit.item.comment.storage.CommentRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.service.ItemByRequestService;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.item.storage.ItemRepository;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserRepository;
@@ -50,7 +50,7 @@ class ItemServiceTest {
     @Mock
     private CommentRepository commentRepository;
     @Mock
-    private ItemRequestService requestService;
+    private ItemByRequestService itemByRequestService;
 
     private final User user = new User(1L, "user@email.com", "User");
     private final UserDto userDto = new UserDto(1L, "user@email.com", "User");
@@ -102,7 +102,7 @@ class ItemServiceTest {
         Mockito.when(userRepository.findById(anyLong()))
                 .thenReturn(Optional.of(user));
 
-        Mockito.when(requestService.findById(anyLong(), anyLong()))
+        Mockito.when(itemByRequestService.findById(anyLong(), anyLong()))
                 .thenReturn(itemRequestDto);
 
         Mockito.when(itemRepository.save(any()))

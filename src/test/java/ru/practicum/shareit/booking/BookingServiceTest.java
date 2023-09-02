@@ -47,9 +47,9 @@ class BookingServiceTest {
     @Mock
     private BookingByItemService bookingByItemService;
     @Mock
-    UserRepository userRepository;
+    private UserRepository userRepository;
     @Mock
-    ItemRepository itemRepository;
+    private ItemRepository itemRepository;
 
     private final User user1 = new User(1L, "user@email.com", "User");
     private final InputBookingDto inputBookingDto = InputBookingDto.builder()

@@ -16,13 +16,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 public class UserRepositoryTest {
+    private final UserRepository userRepository = Mockito.mock(UserRepository.class);
     private final User user = new User(1L, "user@email.com", "User");
     private final User user2 = new User(2L, "user2@email.com", "User2");
 
     @Test
     public void testSave() {
-
-        UserRepository userRepository = Mockito.mock(UserRepository.class);
 
         Mockito.when(userRepository.save(user))
                 .thenReturn(user);
@@ -36,7 +35,6 @@ public class UserRepositoryTest {
     @Test
     public void testFindById() {
 
-        UserRepository userRepository = Mockito.mock(UserRepository.class);
         Mockito.when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         Optional<User> foundUser = userRepository.findById(1L);
@@ -49,7 +47,6 @@ public class UserRepositoryTest {
 
     @Test
     public void testDeleteById() {
-        UserRepository userRepository = Mockito.mock(UserRepository.class);
 
         userRepository.deleteById(1L);
 
@@ -61,8 +58,6 @@ public class UserRepositoryTest {
         List<User> userList = new ArrayList<>();
         userList.add(user);
         userList.add(user2);
-
-        UserRepository userRepository = Mockito.mock(UserRepository.class);
 
         Mockito.when(userRepository.findAll())
                 .thenReturn(userList);
