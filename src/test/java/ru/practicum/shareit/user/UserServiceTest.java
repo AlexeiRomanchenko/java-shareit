@@ -17,8 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 
@@ -29,10 +28,10 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    private final User user = new User(1L, "User", "user@email.com");
-    private final UserDto userDto = new UserDto(1L, "User", "user@email.com");
-    private final User user2 = new User(2L, "User2", "user2@email.ru");
-    private final UserDto userDto2 = new UserDto(2L, "User2", "user2@email.ru");
+    private final User user = new User(1L, "user@email.com", "User");
+    private final UserDto userDto = new UserDto(1L, "user@email.com","User");
+    private final User user2 = new User(2L, "user2@email.ru", "User2");
+    private final UserDto userDto2 = new UserDto(2L, "user2@email.ru", "User2");
 
     @Test
     void createUserTest() {

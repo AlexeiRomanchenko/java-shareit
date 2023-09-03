@@ -79,7 +79,8 @@ public class BookingService {
 
         switch (bookingTimeStatus) {
             case ALL:
-                return BookingMapper.toBookingDto(bookingRepository.findByBookerId(userId, page));
+                return BookingMapper.toBookingDto(bookingRepository
+                        .findByBookerId(userId, page));
             case CURRENT:
                 return BookingMapper.toBookingDto(bookingRepository
                         .findByBookerIdAndEndIsAfterAndStartIsBefore(userId, now, now, page));
