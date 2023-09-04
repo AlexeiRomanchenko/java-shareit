@@ -194,7 +194,7 @@ public class ItemService {
         User user = UserMapper.toUser(checkFindUserById(userId));
         List<Booking> bookings = bookingRepository
                 .findByItemIdAndBookerIdAndStatusIsAndEndIsBefore(
-                        itemId, userId, BookingStatus.APPROVED, LocalDateTime.now());
+                        itemId, userId, BookingStatus.APPROVED, LocalDateTime.now().withNano(0));
         log.info(bookings.toString());
         if (!bookings.isEmpty() && bookings.get(0).getStart().isBefore(LocalDateTime.now())) {
             Comment comment = CommentMapper.toComment(commentDto);

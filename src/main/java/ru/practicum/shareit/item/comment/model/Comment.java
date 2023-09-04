@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item.comment.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
@@ -17,7 +16,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class Comment {
-    private static final String FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,7 +33,6 @@ public class Comment {
     private User author;
 
     @Column(name = "created", nullable = false)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = FORMAT)
     private LocalDateTime created;
 
 }

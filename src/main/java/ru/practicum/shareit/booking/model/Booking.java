@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import ru.practicum.shareit.booking.description.BookingStatus;
 import ru.practicum.shareit.item.model.Item;
@@ -18,18 +17,14 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class Booking {
-    private static final String FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "start_date", nullable = false)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = FORMAT)
     private LocalDateTime start;
 
     @Column(name = "end_date", nullable = false)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = FORMAT)
     private LocalDateTime end;
 
     @ManyToOne(fetch = FetchType.LAZY)
