@@ -22,7 +22,7 @@ class ItemRequestDtoJsonTest {
 
     @Test
     void testItemRequestDto() throws IOException {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now().withNano(0);
         ItemDto itemDto = ItemDto.builder()
                 .id(1L)
                 .name("Item")
