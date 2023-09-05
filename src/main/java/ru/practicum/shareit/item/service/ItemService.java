@@ -2,17 +2,15 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import ru.practicum.shareit.booking.description.BookingStatus;
 import ru.practicum.shareit.booking.dto.OutputBookingDto;
 import ru.practicum.shareit.booking.dto.ShortItemBookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.service.PageableRequest;
+import ru.practicum.shareit.booking.service.FromSizeRequest;
 import ru.practicum.shareit.booking.storage.BookingRepository;
 import ru.practicum.shareit.exception.NotAvailableException;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -25,6 +23,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemRepository;
+import ru.practicum.shareit.request.mapper.ItemRequestMapper;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -43,11 +42,14 @@ public class ItemService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final ItemByRequestService itemByRequestService;
 
     public ItemDto create(Long userId, ItemDto itemDto) {
         checkFindUserById(userId);
         Item item = ItemMapper.toItem(itemDto);
         item.setOwnerId(userId);
+        item.setItemRequest(itemDto.getRequestId() != null ?
+                ItemRequestMapper.toItemRequest(itemByRequestService.findById(userId, itemDto.getRequestId())) : null);
         return ItemMapper.toItemDto(itemRepository.save(item));
     }
 
@@ -67,7 +69,7 @@ public class ItemService {
 
     @Transactional(readOnly = true)
     public List<ItemDto> findUserItems(Long userId, Integer from, Integer size) {
-        Pageable page = PageableRequest.of(from, size);
+        Pageable page = FromSizeRequest.of(from, size);
 
         List<ItemDto> items = itemRepository.findAllByOwnerId(userId, page).stream()
                 .map(ItemMapper::toItemDto)
@@ -170,7 +172,7 @@ public class ItemService {
 
     @Transactional(readOnly = true)
     public List<ItemDto> search(String text, Integer from, Integer size) {
-        Pageable page = PageableRequest.of(from, size);
+        Pageable page = FromSizeRequest.of(from, size);
         if (text == null || text.isBlank()) {
             return Collections.emptyList();
         }
@@ -192,7 +194,7 @@ public class ItemService {
         User user = UserMapper.toUser(checkFindUserById(userId));
         List<Booking> bookings = bookingRepository
                 .findByItemIdAndBookerIdAndStatusIsAndEndIsBefore(
-                        itemId, userId, BookingStatus.APPROVED, LocalDateTime.now());
+                        itemId, userId, BookingStatus.APPROVED, LocalDateTime.now().withNano(0));
         log.info(bookings.toString());
         if (!bookings.isEmpty() && bookings.get(0).getStart().isBefore(LocalDateTime.now())) {
             Comment comment = CommentMapper.toComment(commentDto);
@@ -201,7 +203,7 @@ public class ItemService {
             comment.setCreated(LocalDateTime.now());
             return CommentMapper.toDto(commentRepository.save(comment));
         } else {
-            throw new NotAvailableException(String.format("" +
+            throw new NotAvailableException(String.format(
                     "Бронирование не найдено для пользователя с ID = %d и вещи с ID = %d.", userId, itemId));
         }
     }

@@ -19,7 +19,7 @@ import javax.validation.ConstraintViolationException;
 public class ErrorHandler {
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleIncorrectValidException(final ConstraintViolationException e) {
         log.info(LogError.INCORRECT_REQUEST.getMessage());
         return new ErrorResponse(e.getMessage());
