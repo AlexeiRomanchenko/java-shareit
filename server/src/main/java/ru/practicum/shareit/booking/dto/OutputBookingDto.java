@@ -21,4 +21,5 @@ public class OutputBookingDto {
     private ItemDto item;
     private UserDto booker;
     private BookingStatus status;
+
 }
