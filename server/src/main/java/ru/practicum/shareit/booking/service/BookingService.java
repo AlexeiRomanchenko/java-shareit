@@ -106,7 +106,7 @@ public class BookingService {
     @Transactional(readOnly = true)
     public List<OutputBookingDto> findAllBookingsByOwner(String state, Long ownerId, Integer from, Integer size) {
         checkFindUserById(ownerId);
-        PageRequest page = FromSizeRequest.of(from, size, Sort.by("start").ascending());
+        PageRequest page = FromSizeRequest.of(from, size, Sort.by("start").descending());
         LocalDateTime now = LocalDateTime.now();
         BookingTimeStatus bookingTimeStatus = BookingTimeStatus.getStatusByValue(state);
         switch (bookingTimeStatus) {
