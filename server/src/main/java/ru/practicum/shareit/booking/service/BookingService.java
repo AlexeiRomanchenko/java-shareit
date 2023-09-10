@@ -74,7 +74,7 @@ public class BookingService {
     public List<OutputBookingDto> findAllBookingsByUser(String state, Long userId, Integer from, Integer size) {
         checkFindUserById(userId);
         LocalDateTime now = LocalDateTime.now();
-        PageRequest page = FromSizeRequest.of(from, size, Sort.by("start").descending());
+        PageRequest page = FromSizeRequest.of(from, size, Sort.by("start").ascending());
         BookingTimeStatus bookingTimeStatus = BookingTimeStatus.getStatusByValue(state);
 
         switch (bookingTimeStatus) {
@@ -106,7 +106,7 @@ public class BookingService {
     @Transactional(readOnly = true)
     public List<OutputBookingDto> findAllBookingsByOwner(String state, Long ownerId, Integer from, Integer size) {
         checkFindUserById(ownerId);
-        PageRequest page = FromSizeRequest.of(from, size, Sort.by("start").descending());
+        PageRequest page = FromSizeRequest.of(from, size, Sort.by("start").ascending());
         LocalDateTime now = LocalDateTime.now();
         BookingTimeStatus bookingTimeStatus = BookingTimeStatus.getStatusByValue(state);
         switch (bookingTimeStatus) {
