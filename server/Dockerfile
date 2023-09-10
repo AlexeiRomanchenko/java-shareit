@@ -1,3 +1,5 @@
 FROM amazoncorretto:11-alpine-jdk
-COPY target/*.jar shareit-server.jar
-ENTRYPOINT ["java","-jar","/shareit-server.jar"]
+RUN apk add -U tzdata && cp /usr/share/zoneinfo/Europe/Moscow /etc/localtime
+ENV TZ=Europe/Moscow
+COPY target/*.jar app.jar
+ENTRYPOINT ["java","-jar","/app.jar"]
