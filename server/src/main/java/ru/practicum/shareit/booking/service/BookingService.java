@@ -74,7 +74,7 @@ public class BookingService {
     public List<OutputBookingDto> findAllBookingsByUser(String state, Long userId, Integer from, Integer size) {
         checkFindUserById(userId);
         LocalDateTime now = LocalDateTime.now();
-        PageRequest page = FromSizeRequest.of(from, size, Sort.by("start").ascending());
+        PageRequest page = FromSizeRequest.of(from, size, Sort.by("start").descending());
         BookingTimeStatus bookingTimeStatus = BookingTimeStatus.getStatusByValue(state);
 
         switch (bookingTimeStatus) {
