@@ -14,7 +14,19 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorDto methodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
+        log.error("Произошла непредвиденная ошибка. {}. Stack trace: {}.",
+                HttpStatus.BAD_REQUEST.value(),
+                e.getStackTrace());
         return new ErrorDto("Unknown state: UNSUPPORTED_STATUS");
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorDto handleThrowable(final Throwable e) {
+        log.error("Произошла внутренняя ошибка сервера с кодом {}. Stack trace: {}.",
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                e.getStackTrace());
+        return new ErrorDto("Что-то пошло не так");
     }
 
 }
