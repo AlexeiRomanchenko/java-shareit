@@ -31,6 +31,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
+    @ResponseBody
     public void deleteUser(@PathVariable Long userId) {
         log.info("Удаление пользователя {}", userId);
         userClient.deleteUser(userId);
